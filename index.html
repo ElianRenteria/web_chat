@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Chat</title>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-history"></div>
+        <input type="text" id="chat-input" placeholder="Type a message...">
+        <button id="send-btn">Send</button>
+    </div>
+    <script>
+        const chatHistory = document.getElementById('chat-history');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        // Function to append message to chat history
+        function appendMessage(message) {
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            chatHistory.appendChild(messageElement);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        // Load chat history from the server
+        async function loadChatHistory() {
+            const response = await fetch('/chat-history');
+            const history = await response.json();
+            history.forEach(message => appendMessage(message));
+        }
+
+        // Connect to WebSocket server
+        const socket = new WebSocket('ws://:8000/ws');
+
+        socket.onmessage = (event) => {
+            const message = event.data;
+            appendMessage(message);
+        };
+
+        sendBtn.addEventListener('click', () => {
+            const message = chatInput.value;
+            if (message.trim()) {
+                socket.send(message);
+                appendMessage(`You: ${message}`);
+                chatInput.value = '';
+            }
+        });
+
+        // Load chat history on page load
+        window.onload = loadChatHistory;
+
+    </script>
+</body>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f0f0f0;
+        margin: 0;
+    }
+
+    #chat-container {
+        width: 400px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #chat-history {
+        height: 300px;
+        overflow-y: auto;
+        border-bottom: 1px solid #ccc;
+        margin-bottom: 10px;
+    }
+
+    #chat-input {
+        width: calc(100% - 60px);
+        padding: 10px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+    }
+
+    #send-btn {
+        width: 50px;
+        padding: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+    }
+</style>
+</html>
