@@ -1,8 +1,11 @@
 from flask import Flask, jsonify, send_from_directory
 from flask_sock import Sock
 import sqlite3
+'''from pyngrok import ngrok
+from dotenv import load_dotenv
+import os'''
 
-app = Flask(__name__, static_folder='.')
+app = Flask(__name__)
 sock = Sock(app)
 
 clients = []
@@ -41,4 +44,14 @@ def index():
     return send_from_directory('.', 'index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8000)
+    # Load environment variables from .env file
+    '''load_dotenv()
+    # Set your ngrok auth token (if needed)
+    ngrok.set_auth_token(os.getenv("NGROK_AUTH_TOKEN"))
+
+    # Open a ngrok tunnel to the local server on port 8000
+    public_url = ngrok.connect(8000)
+
+    print(f"Public URL: {public_url}")'''
+    # Run your Flask application
+    app.run(debug=True, host='localhost', port=8000)
